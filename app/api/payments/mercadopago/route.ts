@@ -34,7 +34,16 @@ export async function POST(request: Request) {
     const service = serviceResult.recordset?.[0]
 
     if (!service) {
-      return NextResponse.json({ error: 'El servicio no existe.' }, { status: 404 })
+      return NextResponse.json({ error: 'El servicio no existe o ya no está disponible.' }, { status: 404 })
+    }
+
+    const unitPrice = Number(service.Price)
+
+    if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+      return NextResponse.json(
+        { error: 'El servicio no tiene un precio válido para iniciar el pago.' },
+        { status: 422 },
+      )
     }
 
     const requestResult = await pool
@@ -56,7 +65,7 @@ export async function POST(request: Request) {
 
     const client = new MercadoPagoConfig({ accessToken })
     const preference = new Preference(client)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.headers.get('origin') || 'http://localhost:3000'
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || request.headers.get('origin') || 'http://localhost:3000').replace(/\/$/, '')
 
     const response = await preference.create({
       body: {
@@ -65,7 +74,7 @@ export async function POST(request: Request) {
             id: `service-${serviceId}`,
             title: `Servicio: ${String(service.Title)}`,
             quantity: 1,
-            unit_price: Number(service.Price) || 0,
+            unit_price: unitPrice,
             currency_id: 'ARS',
           },
         ],
@@ -101,6 +110,16 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error('Create Mercado Pago payment error:', error)
+
+    const errorCode = error && typeof error === 'object' && 'code' in error ? String(error.code) : ''
+
+    if (errorCode === 'ESOCKET' || errorCode === 'ETIMEOUT' || errorCode === 'ECONNREFUSED') {
+      return NextResponse.json(
+        { error: 'No se pudo conectar con la base de datos. Verifica DB_SERVER, DB_PORT y las credenciales de SQL Server.' },
+        { status: 503 },
+      )
+    }
+
     return NextResponse.json({ error: 'No se pudo crear el pago con Mercado Pago.' }, { status: 500 })
   }
 }
