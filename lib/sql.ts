@@ -162,6 +162,22 @@ export async function ensureDatabaseSchema() {
   `)
 
   await connection.request().query(`
+    IF OBJECT_ID(N'dbo.ServiceRequests', N'U') IS NOT NULL
+       AND COL_LENGTH(N'dbo.ServiceRequests', N'Latitude') IS NULL
+    BEGIN
+      ALTER TABLE dbo.ServiceRequests ADD Latitude DECIMAL(10,8) NULL
+    END
+  `)
+
+  await connection.request().query(`
+    IF OBJECT_ID(N'dbo.ServiceRequests', N'U') IS NOT NULL
+       AND COL_LENGTH(N'dbo.ServiceRequests', N'Longitude') IS NULL
+    BEGIN
+      ALTER TABLE dbo.ServiceRequests ADD Longitude DECIMAL(11,8) NULL
+    END
+  `)
+
+  await connection.request().query(`
     IF OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL
        AND EXISTS (
          SELECT 1 FROM sys.columns

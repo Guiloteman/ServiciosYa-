@@ -67,6 +67,8 @@ export async function POST(request: Request) {
     const preference = new Preference(client)
     const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || request.headers.get('origin') || 'http://localhost:3000').replace(/\/$/, '')
 
+    const isPublicReturnUrl = /^https:\/\//i.test(baseUrl) && !/localhost|127\.0\.0\.1/i.test(baseUrl)
+
     const response = await preference.create({
       body: {
         items: [
@@ -85,12 +87,16 @@ export async function POST(request: Request) {
         payment_methods: {
           installments: 12,
         },
-        back_urls: {
-          success: `${baseUrl}/?payment=success`,
-          failure: `${baseUrl}/?payment=failed`,
-          pending: `${baseUrl}/?payment=pending`,
-        },
-        auto_return: 'approved',
+        ...(isPublicReturnUrl
+          ? {
+              back_urls: {
+                success: `${baseUrl}/?payment=success`,
+                failure: `${baseUrl}/?payment=failed`,
+                pending: `${baseUrl}/?payment=pending`,
+              },
+              auto_return: 'approved' as const,
+            }
+          : {}),
         metadata: {
           serviceId: String(serviceId),
           requestId: createdRequest?.Id ? String(createdRequest.Id) : '0',
