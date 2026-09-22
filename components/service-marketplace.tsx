@@ -3,9 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight,
-  Bell,
   Check,
-  ChevronDown,
   Clock3,
   Crosshair,
   Filter,
@@ -59,7 +57,6 @@ export function ServiceMarketplace() {
   const [activeServiceId, setActiveServiceId] = useState<number | null>(null)
   const [showRequest, setShowRequest] = useState(false)
   const [requested, setRequested] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
   const [clientName, setClientName] = useState('')
   const [clientPhone, setClientPhone] = useState('')
   const [clientEmail, setClientEmail] = useState('')
@@ -395,29 +392,12 @@ export function ServiceMarketplace() {
     <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
       <a className="text-[#163d75]" href="#inicio">Inicio</a>
       <a href="#servicios">Servicios</a>
-      <a href="#como-funciona">Cómo funciona</a>
-      <a href="#ayuda">Ayuda</a>
     </nav>
 
-    <div className="flex items-center gap-2 sm:gap-4">
-      <button aria-label="Notificaciones" className="relative rounded-full p-2 text-slate-500 hover:bg-slate-100">
-        <Bell size={19} />
-        <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-[#ec6a38]" />
-      </button>
-      <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 rounded-full border border-slate-200 bg-white py-1.5 pl-1.5 pr-3 text-sm font-semibold text-slate-700 shadow-sm">
-        <span className="flex size-8 items-center justify-center rounded-full bg-[#e8eff8] text-xs font-bold text-[#163d75]">Tú</span>
-        <ChevronDown size={15} className="hidden sm:block" />
-      </button>
-    </div>
+    <div aria-hidden="true" className="w-2" />
 
   </div>
 
-  {menuOpen && (
-    <div className="absolute right-5 top-[64px] w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
-      <button className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-50">Mis solicitudes</button>
-      <button className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-50">Convertirme en prestador</button>
-    </div>
-  )}
 </header>
 
 
