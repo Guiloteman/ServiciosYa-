@@ -383,8 +383,8 @@ export function ServiceMarketplace() {
     
     <div className="flex items-center gap-3">
       <div>
-        <p className="text-[19px] font-bold tracking-tight text-[#163d75]">
-          <img src="logo-serviciosya.png" alt="Logo Servicios Ya" className="inline-block h-12 w-auto mr-1" />
+        <p className="text-[19px] font-bold tracking-tight text-[#163d75]" aria-label="Servicios Ya">
+          Servicios Ya
         </p>
         <p className="hidden text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400 sm:block">
           servicios a tu alcance
