@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
 const ollamaUrl = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434'
-// The 1B variant keeps local inference responsive on typical development machines.
-const model = process.env.OLLAMA_MODEL || 'llama3.2:1b'
+// Qwen 2.5 1.5B keeps local inference responsive on typical development machines.
+const model = process.env.OLLAMA_MODEL || 'qwen2.5:1.5b'
 
 export async function POST(request: Request) {
   try {
