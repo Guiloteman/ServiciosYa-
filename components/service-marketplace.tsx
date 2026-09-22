@@ -79,8 +79,36 @@ export function ServiceMarketplace() {
   const [rating, setRating] = useState(0)
   const [ratingComment, setRatingComment] = useState('')
   const [ratingMessage, setRatingMessage] = useState('')
-  const [serviceDetails, setServiceDetails] = useState('');
+  const [serviceDetails, setServiceDetails] = useState('')
+  const [assistantAnswer, setAssistantAnswer] = useState('')
+  const [assistantLoading, setAssistantLoading] = useState(false)
 
+  async function askLocalAssistant() {
+    const details = serviceDetails.trim()
+    if (!details) {
+      setAssistantAnswer('Cuéntame brevemente qué problema necesitas resolver.')
+      return
+    }
+
+    setAssistantLoading(true)
+    setAssistantAnswer('')
+    try {
+      const response = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ details, services }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.error || 'No pudimos consultar al asistente.')
+      setAssistantAnswer(data.answer)
+      if (data.category && categories.includes(data.category)) setSelectedCategory(data.category)
+      if (data.search) setQuery(data.search)
+    } catch (error) {
+      setAssistantAnswer(error instanceof Error ? error.message : 'No pudimos consultar al asistente local.')
+    } finally {
+      setAssistantLoading(false)
+    }
+  }
 
   useEffect(() => {
     async function loadServices() {
@@ -397,6 +425,21 @@ export function ServiceMarketplace() {
         <div className="mb-8 flex flex-col justify-between gap-5 lg:flex-row lg:items-end"><div><div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#eaf1fb] px-3 py-1.5 text-xs font-bold text-[#285896]"><Sparkles size={13} /> SERVICIOS CERCA DE TI</div><h1 className="max-w-2xl text-3xl font-bold tracking-[-0.035em] text-[#172b4d] sm:text-4xl">Encuentra ayuda confiable,<br className="hidden sm:block" /> justo cuando la necesitas.</h1><p className="mt-3 text-[15px] text-slate-500">Profesionales verificados para resolver lo que necesitas, sin complicaciones.</p></div><div className="hidden items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 sm:flex"><ShieldCheck size={20} /><div><p className="font-bold">Tu seguridad es primero</p><p className="text-xs text-emerald-700">Prestadores verificados por nuestra comunidad</p></div></div></div>
 
         <div className="relative mb-8 flex max-w-3xl items-center rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_5px_22px_rgba(27,55,90,0.07)]"><Search className="ml-3 text-slate-400" size={21} /><input aria-label="Buscar servicio o profesional" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="¿Qué servicio necesitas?" className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm outline-none placeholder:text-slate-400" /><div className="hidden h-8 w-px bg-slate-200 sm:block" /><button onClick={useMyLocation} className="hidden items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-slate-500 hover:bg-slate-50 sm:flex"><MapPin size={16} className="text-[#ec6a38]" /> {locationStatus === 'loading' ? 'Localizando...' : locationStatus === 'ready' ? 'Ubicación lista' : 'Mi ubicación'}</button><button className="rounded-xl bg-[#163d75] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#102f5c] sm:px-6">Buscar</button></div>
+
+        <section className="mb-8 max-w-3xl rounded-2xl border border-[#dce9f8] bg-[#eef5fc] p-4 sm:p-5" aria-labelledby="assistant-title">
+          <div className="flex items-start gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#163d75] text-white"><Sparkles size={18} /></div>
+            <div className="min-w-0 flex-1">
+              <h2 id="assistant-title" className="font-bold text-[#172b4d]">Describe tu problema y te orientamos</h2>
+              <p className="mt-1 text-xs text-slate-600">El asistente local analiza tu descripción y te ayuda a encontrar el servicio adecuado.</p>
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <input value={serviceDetails} onChange={(event) => setServiceDetails(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.nativeEvent.isComposing && event.keyCode !== 229) askLocalAssistant() }} placeholder="Ej.: Tengo una fuga debajo del fregadero" aria-label="Describe tu problema" className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#285896] focus:ring-2 focus:ring-[#dce9f8]" />
+                <button type="button" onClick={askLocalAssistant} disabled={assistantLoading} className="rounded-xl bg-[#ec6a38] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#d95d2f] disabled:cursor-wait disabled:opacity-60">{assistantLoading ? 'Analizando...' : 'Orientarme'}</button>
+              </div>
+              {assistantAnswer && <p className="mt-3 rounded-xl bg-white/80 px-3 py-2.5 text-sm leading-6 text-slate-700">{assistantAnswer}</p>}
+            </div>
+          </div>
+        </section>
 
         <div id="servicios" className="mb-10">
           <div className="mb-4 flex items-center justify-between">
