@@ -6,6 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  devIndicators: false,
   allowedDevOrigins: ['six-yaks-eat.loca.lt/'],
 }
 
