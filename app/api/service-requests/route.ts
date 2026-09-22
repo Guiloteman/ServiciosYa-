@@ -29,13 +29,14 @@ export async function POST(request: Request) {
     const body = await request.json()
     const serviceId = Number(body?.serviceId ?? 0)
     const clientName = String(body?.clientName ?? '').trim()
-    const clientPhone = String(body?.clientPhone ?? '').trim()
+    const clientPhone = String(body?.clientPhone ?? '').trim() || 'indefinido'
+    const clientEmail = String(body?.clientEmail ?? '').trim() || 'indefinido'
     const address = String(body?.address ?? '').trim()
     const message = String(body?.message ?? '').trim()
     const paymentMethod = body?.paymentMethod === 'mercadopago' ? 'mercadopago' : 'cash'
 
-    if (!serviceId || !clientName || !clientPhone || !address) {
-      return NextResponse.json({ error: 'Indica tu nombre, celular y dirección.' }, { status: 400 })
+    if (!serviceId || !clientName || !address || !body?.paymentMethod) {
+      return NextResponse.json({ error: 'Indica tu nombre, dirección y forma de pago.' }, { status: 400 })
     }
 
     await ensureDatabaseSchema()
@@ -54,8 +55,8 @@ export async function POST(request: Request) {
       .request()
       .input('serviceId', serviceId)
       .input('clientName', clientName)
-      .input('clientPhone', clientPhone || null)
-      .input('clientEmail', null)
+      .input('clientPhone', clientPhone)
+      .input('clientEmail', clientEmail)
       .input('address', address)
       .input('message', message)
       .input('paymentMethod', paymentMethod)

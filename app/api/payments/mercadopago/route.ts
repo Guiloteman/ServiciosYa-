@@ -7,11 +7,12 @@ export async function POST(request: Request) {
     const body = await request.json()
     const serviceId = Number(body?.serviceId ?? 0)
     const clientName = String(body?.clientName ?? '').trim()
-    const clientPhone = String(body?.clientPhone ?? '').trim()
+    const clientPhone = String(body?.clientPhone ?? '').trim() || 'indefinido'
+    const clientEmail = String(body?.clientEmail ?? '').trim() || 'indefinido'
     const address = String(body?.address ?? '').trim()
 
-    if (!serviceId || !clientName || !clientPhone || !address) {
-      return NextResponse.json({ error: 'Indica tu nombre, celular y dirección.' }, { status: 400 })
+    if (!serviceId || !clientName || !address) {
+      return NextResponse.json({ error: 'Indica tu nombre y dirección.' }, { status: 400 })
     }
 
     const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN
@@ -50,8 +51,8 @@ export async function POST(request: Request) {
       .request()
       .input('serviceId', serviceId)
       .input('clientName', clientName)
-      .input('clientPhone', clientPhone || null)
-      .input('clientEmail', null)
+      .input('clientPhone', clientPhone)
+      .input('clientEmail', clientEmail)
       .input('address', address)
       .input('message', `Solicitud para ${String(service.Title)}`)
       .input('paymentMethod', 'mercadopago')
