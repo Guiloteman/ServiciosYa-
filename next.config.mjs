@@ -6,7 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  allowedDevOrigins: ['broadway-renewable-seen-des.trycloudflare.com'],
+  allowedDevOrigins: ['*.trycloudflare.com'],
 }
 
 export default nextConfig
